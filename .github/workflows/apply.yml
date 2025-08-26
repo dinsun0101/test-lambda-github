@@ -32,5 +32,5 @@ jobs:
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code \
-            --function-name my-lambda-func \
+            --function-name dinesh-lambda-func \
             --zip-file fileb://lambda_function.zip
