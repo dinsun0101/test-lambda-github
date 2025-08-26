@@ -20,8 +20,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
+      # Only for Python Lambdas with requirements.txt
+      - name: Install dependencies
+        if: hashFiles('requirements.txt') != ''
+        run: |
+          pip install -r requirements.txt -t ./src
+          
       - name: Package Lambda code
-        run: zip -r lambda_function.zip . -x "*.git*"
+        run: |
+          cd src
+          zip -r ../lambda_function.zip . -x "*.git*"
+          cd ..
 
       - name: Deploy to Lambda
         run: |
