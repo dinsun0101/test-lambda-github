@@ -3,33 +3,40 @@ name: Deploy AWS Lambda
 on:
   push:
     branches:
-      - main
+      - main   # Deploy only when pushing to main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      #  Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      #  Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: ap-south-1  # Change to your region
 
-      # Only runs if you have requirements.txt (Python projects)
+      #  Install dependencies (Python)
       - name: Install dependencies
-        if: hashFiles('requirements.txt') != ''
+        if: hashFiles('my-lambda-project/requirements.txt') != ''
         run: |
-          pip install -r requirements.txt -t .
+          pip install -r my-lambda-project/requirements.txt -t my-lambda-project
 
+      #  Package Lambda code
       - name: Package Lambda code
-        run: zip -r lambda_function.zip . -x "*.git*" ".github/*"
+        run: |
+          cd my-lambda-project
+          zip -r ../lambda_function.zip . -x "*.git*" ".github/*"
+          cd ..
 
-      - name: Deploy to Lambda
+      # Deploy to Lambda
+      - name: Deploy to AWS Lambda
         run: |
           aws lambda update-function-code \
             --function-name my-lambda-func \
